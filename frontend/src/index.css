@@ -1,0 +1,639 @@
+/* ============================================================
+   GAME SCRIPT — Global tokens & base styles
+   ============================================================ */
+
+:root {
+  /* Backgrounds */
+  --bg: #06090d;
+  --navy: #0a1420;
+  --card: #0f1d2e;
+  --border: #1a3048;
+
+  /* Accents */
+  --copper: #c4762a;
+  --copper-bright: #e08a30;
+  --silver: #8a9ba8;
+  --chalk: #ede8dc;
+  --chalk-dim: #9a9488;
+
+  /* States */
+  --green: #2a6b3c;
+  --green-bright: #3a8b4c;
+  --green-text: #6bcb8a;
+  --green-bg: #1e4028;
+  --red-alert: #8b2a2a;
+  --red-bright: #c4392a;
+
+  /* Tier colors */
+  --tier-sharp: #c4762a;
+  --tier-coordinator: #8a6fd4;
+  --tier-creator: #2a8b6c;
+
+  /* Fonts — Rajdhani for headings, Inter for body/data. No monospace. */
+  --font-display: 'Rajdhani', 'Inter', system-ui, sans-serif;
+  --font-data: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-body: 'Inter', system-ui, -apple-system, sans-serif;
+
+  --radius: 2px;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  /* Deep radial gradient (navy -> near black) + subtle hex-grid pattern @ 3% */
+  background-color: #06090d;
+  background-image:
+    url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='28' height='49' viewBox='0 0 28 49'%3E%3Cg fill='%23ffffff' fill-opacity='0.03' fill-rule='evenodd'%3E%3Cpath d='M13.99 9.25l13 7.5v15l-13 7.5L1 31.75v-15l12.99-7.5zM3 17.9v12.7l10.99 6.34 11-6.35V17.9l-11-6.34L3 17.9zM0 15l12.98-7.5V0h-2v6.35L0 12.69v2.3zm0 18.5L12.98 41v8h-2v-6.85L0 35.81v-2.3zM15 0v7.5L27.99 15H28v-2.31h-.01L17 6.35V0h-2zm0 49v-8l12.99-7.5H28v2.31h-.01L17 42.15V49h-2z'/%3E%3C/g%3E%3C/svg%3E"),
+    radial-gradient(ellipse 1200px 900px at 50% -5%, #0a1628 0%, #08111c 45%, #06090d 80%);
+  background-attachment: fixed;
+  color: var(--chalk);
+  font-family: var(--font-body);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
+}
+
+h1,
+h2,
+h3,
+h4 {
+  font-family: var(--font-display);
+  font-weight: 700;
+  margin: 0;
+  letter-spacing: 0.5px;
+}
+
+a {
+  color: var(--copper);
+  text-decoration: none;
+}
+a:hover {
+  color: var(--copper-bright);
+}
+
+/* Data / analytics surfaces use mono */
+.mono {
+  font-family: var(--font-data);
+}
+
+/* Thin uppercase label used throughout the UI */
+.eyebrow {
+  font-family: var(--font-data);
+  font-size: 9px;
+  letter-spacing: 3px;
+  text-transform: uppercase;
+  color: var(--copper);
+}
+
+::-webkit-scrollbar {
+  width: 10px;
+  height: 10px;
+}
+::-webkit-scrollbar-track {
+  background: var(--bg);
+}
+::-webkit-scrollbar-thumb {
+  background: var(--border);
+  border-radius: var(--radius);
+}
+::-webkit-scrollbar-thumb:hover {
+  background: var(--copper);
+}
+
+button {
+  font-family: var(--font-data);
+  cursor: pointer;
+}
+
+input,
+select,
+textarea {
+  font-family: var(--font-data);
+}
+
+/* spin keyframe for Spinner */
+@keyframes gs-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Pulsing red dot shown while voice input (mic) is recording */
+.gs-mic-pulse {
+  animation: gs-mic-pulse 1.1s ease-in-out infinite;
+  box-shadow: 0 0 0 0 rgba(196, 57, 42, 0.55);
+}
+@keyframes gs-mic-pulse {
+  0%   { transform: scale(0.85); box-shadow: 0 0 0 0 rgba(196, 57, 42, 0.55); }
+  70%  { transform: scale(1.1); box-shadow: 0 0 0 6px rgba(196, 57, 42, 0); }
+  100% { transform: scale(0.85); box-shadow: 0 0 0 0 rgba(196, 57, 42, 0); }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gs-mic-pulse { animation: none; }
+}
+
+/* ============================================================
+   Landing — premium sports war room
+   ============================================================ */
+
+/* Copper gradient text helper (hero wordmark, fallback logo) */
+.gs-copper-grad {
+  background: linear-gradient(180deg, var(--copper-bright) 0%, var(--copper) 55%, #8f5420 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+}
+
+/* Animated chalk play-diagram lines drawn into the hero background.
+   Each path animates its dash offset so routes appear to be "drawn". */
+.gs-chalk path,
+.gs-chalk line,
+.gs-chalk polyline {
+  stroke: var(--chalk);
+  stroke-width: 1.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0;
+  stroke-dasharray: 320;
+  stroke-dashoffset: 320;
+  animation: gs-chalk-draw 4.5s ease-in-out infinite;
+}
+.gs-chalk circle,
+.gs-chalk .gs-x {
+  stroke: var(--chalk);
+  stroke-width: 1.5;
+  fill: none;
+  opacity: 0;
+  animation: gs-chalk-mark 4.5s ease-in-out infinite;
+}
+.gs-chalk [data-d='0'] { animation-delay: 0s; }
+.gs-chalk [data-d='1'] { animation-delay: 0.4s; }
+.gs-chalk [data-d='2'] { animation-delay: 0.8s; }
+.gs-chalk [data-d='3'] { animation-delay: 1.2s; }
+.gs-chalk [data-d='4'] { animation-delay: 1.6s; }
+.gs-chalk [data-d='5'] { animation-delay: 2s; }
+
+@keyframes gs-chalk-draw {
+  0%   { stroke-dashoffset: 320; opacity: 0; }
+  12%  { opacity: 0.06; }
+  55%  { stroke-dashoffset: 0; opacity: 0.06; }
+  85%  { stroke-dashoffset: 0; opacity: 0.06; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+@keyframes gs-chalk-mark {
+  0%, 10%  { opacity: 0; }
+  25%      { opacity: 0.5; }
+  85%      { opacity: 0.5; }
+  100%     { opacity: 0; }
+}
+
+/* Module card — copper left border, gradient surface, scale + glow on hover */
+.gs-module-card {
+  position: relative;
+  border-left: 2px solid var(--copper) !important;
+  background-image: linear-gradient(135deg, rgba(196, 118, 42, 0.08) 0%, rgba(15, 29, 46, 0) 55%);
+  transition: border-color 180ms ease, box-shadow 180ms ease, transform 180ms ease, background-image 180ms ease;
+}
+.gs-module-card:hover {
+  border-color: var(--copper) !important;
+  background-image: linear-gradient(135deg, rgba(196, 118, 42, 0.18) 0%, rgba(15, 29, 46, 0) 60%);
+  box-shadow: 0 0 0 1px var(--copper), 0 0 22px -2px rgba(196, 118, 42, 0.55);
+  transform: translateY(-3px) scale(1.03);
+}
+
+/* ============================================================
+   Visual FX — copper glow pulse, hero particles, stat shimmer
+   ============================================================ */
+
+/* Slow pulsing copper glow — apply to copper CTAs, crest, support button */
+@keyframes gs-copper-pulse {
+  0%, 100% { box-shadow: 0 0 0 1px rgba(196, 118, 42, 0.35), 0 0 14px -2px rgba(196, 118, 42, 0.35); }
+  50%      { box-shadow: 0 0 0 1px rgba(224, 138, 48, 0.7), 0 0 26px 2px rgba(224, 138, 48, 0.55); }
+}
+.gs-glow-pulse {
+  animation: gs-copper-pulse 3.2s ease-in-out infinite;
+}
+
+/* Soft radial glow halo behind the crest */
+.gs-crest-glow::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 320px;
+  height: 320px;
+  transform: translate(-50%, -50%);
+  background: radial-gradient(circle, rgba(26, 58, 107, 0.4) 0%, rgba(26, 58, 107, 0.18) 35%, transparent 68%);
+  filter: blur(6px);
+  pointer-events: none;
+  z-index: 0;
+  animation: gs-crest-breathe 4.5s ease-in-out infinite;
+}
+@keyframes gs-crest-breathe {
+  0%, 100% { opacity: 0.65; transform: translate(-50%, -50%) scale(0.92); }
+  50%      { opacity: 1;    transform: translate(-50%, -50%) scale(1.05); }
+}
+
+/* Floating particles drifting up through the hero */
+.gs-particle {
+  position: absolute;
+  bottom: -12px;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background: rgba(224, 138, 48, 0.55);
+  box-shadow: 0 0 6px 1px rgba(224, 138, 48, 0.45);
+  pointer-events: none;
+  opacity: 0;
+  animation: gs-particle-float linear infinite;
+}
+@keyframes gs-particle-float {
+  0%   { transform: translateY(0) translateX(0); opacity: 0; }
+  10%  { opacity: 0.8; }
+  90%  { opacity: 0.5; }
+  100% { transform: translateY(-460px) translateX(18px); opacity: 0; }
+}
+
+/* Metallic shimmer sweep across stat numbers on load */
+.gs-stat-shimmer {
+  background: linear-gradient(110deg, var(--copper) 28%, #ffe6c4 48%, #fff3e0 50%, #ffe6c4 52%, var(--copper) 72%);
+  background-size: 220% auto;
+  -webkit-background-clip: text;
+  background-clip: text;
+  -webkit-text-fill-color: transparent;
+  color: transparent;
+  animation: gs-shimmer 2.4s cubic-bezier(0.22, 1, 0.36, 1) 1 both;
+}
+@keyframes gs-shimmer {
+  from { background-position: 220% center; }
+  to   { background-position: 0% center; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-glow-pulse,
+  .gs-crest-glow::before,
+  .gs-particle,
+  .gs-stat-shimmer {
+    animation: none;
+  }
+  .gs-stat-shimmer {
+    -webkit-text-fill-color: var(--copper);
+    color: var(--copper);
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-chalk path,
+  .gs-chalk line,
+  .gs-chalk polyline,
+  .gs-chalk circle,
+  .gs-chalk .gs-x {
+    animation: none;
+    opacity: 0.35;
+    stroke-dashoffset: 0;
+  }
+}
+
+/* ============================================================
+   Premium upgrades — splitflap, radar, confetti, vault, watermark
+   Discrete transitions stay <400ms; ambient loops match the
+   existing multi-second FX. Every block has a reduced-motion stop.
+   ============================================================ */
+
+/* 1 — Splitflap digit flip for stat cards (50ms stagger via inline delay) */
+.gs-flip-digit {
+  display: inline-block;
+  transform-origin: center 60%;
+  backface-visibility: hidden;
+  animation: gs-flip 360ms cubic-bezier(0.2, 0.75, 0.3, 1) both;
+}
+@keyframes gs-flip {
+  0%   { transform: rotateX(-90deg); opacity: 0; }
+  55%  { transform: rotateX(12deg);  opacity: 1; }
+  100% { transform: rotateX(0deg);   opacity: 1; }
+}
+
+/* 2 — Sharp Report radar sweep; accelerates when the AI read lands */
+.gs-radar {
+  position: relative;
+  display: inline-flex;
+  width: 26px;
+  height: 26px;
+  flex-shrink: 0;
+}
+.gs-radar-dot {
+  position: absolute;
+  inset: 0;
+  margin: auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--copper-bright);
+  box-shadow: 0 0 6px 1px rgba(224, 138, 48, 0.7);
+}
+.gs-radar-ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  border: 1px solid var(--copper);
+  opacity: 0;
+  animation: gs-radar-ping 1.8s ease-out infinite;
+}
+.gs-radar-ring:nth-child(2) { animation-delay: 0.9s; }
+.gs-radar--fast .gs-radar-ring { animation-duration: 0.66s; }
+.gs-radar--fast .gs-radar-ring:nth-child(2) { animation-delay: 0.33s; }
+@keyframes gs-radar-ping {
+  0%   { transform: scale(0.25); opacity: 0.85; }
+  80%  { opacity: 0.12; }
+  100% { transform: scale(1);    opacity: 0; }
+}
+
+/* 3 — Coordinator background play diagram, drawn once, static @ 0.04 */
+.gs-chalk-static path,
+.gs-chalk-static line,
+.gs-chalk-static polyline {
+  stroke: var(--chalk);
+  stroke-width: 1.5;
+  fill: none;
+  stroke-linecap: round;
+  stroke-linejoin: round;
+  opacity: 0.04;
+  stroke-dasharray: 320;
+  stroke-dashoffset: 320;
+  animation: gs-chalk-draw-once 2.6s ease-out forwards;
+}
+.gs-chalk-static circle,
+.gs-chalk-static .gs-x {
+  stroke: var(--chalk);
+  stroke-width: 1.5;
+  fill: none;
+  opacity: 0;
+  animation: gs-chalk-mark-once 2.6s ease-out forwards;
+}
+.gs-chalk-static [data-d='1'] { animation-delay: 0.3s; }
+.gs-chalk-static [data-d='2'] { animation-delay: 0.6s; }
+.gs-chalk-static [data-d='3'] { animation-delay: 0.9s; }
+.gs-chalk-static [data-d='4'] { animation-delay: 1.2s; }
+.gs-chalk-static [data-d='5'] { animation-delay: 1.5s; }
+@keyframes gs-chalk-draw-once {
+  to { stroke-dashoffset: 0; opacity: 0.04; }
+}
+@keyframes gs-chalk-mark-once {
+  to { opacity: 0.04; }
+}
+
+/* 5 — The Record: green flash + confetti on a logged win */
+.gs-win-flash {
+  animation: gs-win-flash 380ms ease-out 1;
+}
+@keyframes gs-win-flash {
+  0%   { box-shadow: 0 0 0 0 rgba(107, 203, 138, 0); }
+  35%  { box-shadow: 0 0 0 2px var(--green-bright), 0 0 26px 2px rgba(107, 203, 138, 0.6); }
+  100% { box-shadow: 0 0 0 0 rgba(107, 203, 138, 0); }
+}
+.gs-confetti-piece {
+  position: absolute;
+  top: -8px;
+  width: 7px;
+  height: 11px;
+  border-radius: 1px;
+  opacity: 0;
+  animation: gs-confetti-fall 900ms cubic-bezier(0.2, 0.6, 0.4, 1) forwards;
+}
+@keyframes gs-confetti-fall {
+  0%   { transform: translateY(0) rotate(0deg); opacity: 1; }
+  100% { transform: translateY(220px) rotate(420deg); opacity: 0; }
+}
+
+/* 7 — Landing cycling social-proof copper text (crossfade swap) */
+.gs-rotator {
+  display: inline-block;
+  animation: gs-rotator-in 360ms ease-out;
+}
+@keyframes gs-rotator-in {
+  from { opacity: 0; transform: translateY(4px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* 8 — Vault: blurred locked content, copper unlock overlay */
+.gs-vault { position: relative; overflow: hidden; }
+.gs-vault-content {
+  filter: blur(7px) saturate(0.7);
+  opacity: 0.55;
+  pointer-events: none;
+  user-select: none;
+}
+.gs-vault-overlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  background: radial-gradient(ellipse at center, rgba(6, 9, 13, 0.35), rgba(6, 9, 13, 0.78));
+  text-align: center;
+  padding: 16px;
+}
+
+/* 11 — Dashboard live activity pip */
+.gs-live-pip {
+  display: inline-block;
+  width: 7px;
+  height: 7px;
+  border-radius: 50%;
+  background: var(--green-text);
+  box-shadow: 0 0 8px 1px var(--green-text);
+  animation: gs-live-blink 2.2s ease-in-out infinite;
+}
+@keyframes gs-live-blink {
+  0%, 100% { opacity: 1; }
+  50%      { opacity: 0.35; }
+}
+.gs-count-tick { animation: gs-count-tick 300ms ease-out; }
+@keyframes gs-count-tick {
+  from { color: var(--green-text); transform: translateY(-2px); }
+  to   { color: inherit; transform: translateY(0); }
+}
+
+/* 13 — fixed module watermark shield, bottom-right @ 0.10 */
+.gs-module-watermark {
+  position: fixed;
+  bottom: 18px;
+  right: 18px;
+  width: 130px;
+  height: 130px;
+  opacity: 0.1;
+  pointer-events: none;
+  z-index: -1;
+  object-fit: contain;
+  mix-blend-mode: screen;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .gs-flip-digit,
+  .gs-radar-ring,
+  .gs-chalk-static path,
+  .gs-chalk-static line,
+  .gs-chalk-static polyline,
+  .gs-chalk-static circle,
+  .gs-chalk-static .gs-x,
+  .gs-win-flash,
+  .gs-confetti-piece,
+  .gs-rotator,
+  .gs-live-pip,
+  .gs-count-tick {
+    animation: none !important;
+  }
+  .gs-flip-digit { opacity: 1; transform: none; }
+  .gs-chalk-static path,
+  .gs-chalk-static line,
+  .gs-chalk-static polyline,
+  .gs-chalk-static circle,
+  .gs-chalk-static .gs-x { opacity: 0.04; stroke-dashoffset: 0; }
+  .gs-confetti-piece { display: none; }
+}
+
+/* Red Zone — animated play-formation routes drawing onto the field */
+@keyframes gs-rz-draw {
+  0%   { stroke-dashoffset: 60; opacity: 0; }
+  6%   { opacity: 0.12; }
+  25%  { stroke-dashoffset: 0; opacity: 0.12; }
+  84%  { stroke-dashoffset: 0; opacity: 0.12; }
+  100% { stroke-dashoffset: 0; opacity: 0; }
+}
+.gs-rz-route {
+  stroke: #C4762A;
+  stroke-width: 0.7;
+  fill: none;
+  stroke-linecap: round;
+  stroke-dasharray: 60;
+  animation: gs-rz-draw 8s ease-in-out forwards;
+}
+.gs-rz-player { fill: #C4762A; opacity: 0.10; }
+@media (prefers-reduced-motion: reduce) {
+  .gs-rz-route { animation: none; stroke-dashoffset: 0; opacity: 0.10; }
+}
+
+/* Film Room — ambient projector cycling the brand logos onto a grain screen */
+.gs-projector {
+  position: absolute;
+  top: -8px;
+  right: 0;
+  width: 240px;
+  height: 170px;
+  pointer-events: none;
+  z-index: 0;
+  opacity: 0.9;
+}
+.gs-proj-screen {
+  position: absolute;
+  top: 6px;
+  right: 6px;
+  width: 190px;
+  height: 120px;
+  border: 1px solid rgba(196, 118, 42, 0.3);
+  border-radius: 3px;
+  background:
+    radial-gradient(circle at 30% 30%, rgba(255,255,255,0.03), rgba(0,0,0,0.6)),
+    repeating-linear-gradient(0deg, rgba(255,255,255,0.02) 0, rgba(255,255,255,0.02) 1px, transparent 1px, transparent 2px);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.gs-proj-logo { animation: gs-proj-fade 11s ease-in-out; opacity: 0.55; }
+.gs-proj-beam {
+  position: absolute;
+  bottom: 18px;
+  left: 4px;
+  width: 60px;
+  height: 46px;
+  background: linear-gradient(100deg, rgba(196,118,42,0.22), rgba(196,118,42,0));
+  clip-path: polygon(0 40%, 0 60%, 100% 100%, 100% 0);
+  transform-origin: left center;
+}
+.gs-proj-flicker { animation: gs-proj-flicker 120ms steps(2) infinite; }
+.gs-proj-body {
+  position: absolute;
+  bottom: 6px;
+  left: 0;
+  width: 56px;
+  height: 34px;
+  background: rgba(10, 20, 40, 0.9);
+  border: 1px solid rgba(196, 118, 42, 0.35);
+  border-radius: 4px;
+}
+.gs-proj-reel {
+  position: absolute;
+  top: -8px;
+  width: 16px;
+  height: 16px;
+  border: 1px solid rgba(196, 118, 42, 0.4);
+  border-radius: 50%;
+}
+.gs-proj-reel:nth-child(1) { left: 8px; }
+.gs-proj-reel:nth-child(2) { left: 30px; }
+.gs-proj-lens {
+  position: absolute;
+  right: -6px;
+  top: 11px;
+  width: 10px;
+  height: 10px;
+  background: rgba(196, 118, 42, 0.5);
+  border-radius: 50%;
+}
+@keyframes gs-proj-flicker {
+  0% { opacity: 0.7; }
+  100% { opacity: 1; }
+}
+@keyframes gs-proj-fade {
+  0% { opacity: 0; }
+  12% { opacity: 0.55; }
+  88% { opacity: 0.55; }
+  100% { opacity: 0; }
+}
+@media (max-width: 768px) {
+  .gs-projector { display: none; }
+}
+@media (prefers-reduced-motion: reduce) {
+  .gs-proj-flicker { animation: none; }
+  .gs-proj-logo { animation: none; opacity: 0.55; }
+}
+
+/* Pre-lock checklist — satisfying copper flash when a box is checked */
+@keyframes gs-check-flash {
+  0% { box-shadow: 0 0 0 0 rgba(196, 118, 42, 0.6); }
+  100% { box-shadow: 0 0 0 8px rgba(196, 118, 42, 0); }
+}
+.gs-check-flash { animation: gs-check-flash 380ms ease-out; }
+@media (prefers-reduced-motion: reduce) {
+  .gs-check-flash { animation: none; }
+}
+
+/* Affiliate reserved spaces — never visible until explicitly activated */
+.affiliate-placeholder { display: none !important; }
+
+/* Responsive nav: sidebar on desktop, bottom nav on mobile */
+.gs-bottomnav {
+  display: none;
+}
+
+@media (max-width: 768px) {
+  .gs-sidebar {
+    display: none !important;
+  }
+  .gs-bottomnav {
+    display: block;
+  }
+}
