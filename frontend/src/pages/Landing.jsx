@@ -117,33 +117,28 @@ const btn = (kind) => ({
   borderRadius: 'var(--radius)',
 });
 
-// Animated chalk play-diagram drawn into the hero background.
-// Routes + X/O markers stroke-draw on a loop via the .gs-chalk keyframes.
-function ChalkPlay() {
+// Subtle 50-yard-line field marking drawn into the hero background.
+function FiftyYardLine() {
   return (
     <svg
-      className="gs-chalk"
+      className="gs-fifty"
       viewBox="0 0 400 300"
       preserveAspectRatio="xMidYMid slice"
       aria-hidden="true"
-      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none' }}
+      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%', pointerEvents: 'none', opacity: 0.05 }}
     >
-      {/* Line of scrimmage */}
-      <line data-d="0" x1="40" y1="180" x2="360" y2="180" />
-      {/* Routes — slant, post, wheel, curl */}
-      <polyline data-d="1" points="120,180 150,120 210,90" />
-      <polyline data-d="2" points="200,180 200,110 250,70" />
-      <polyline data-d="3" points="280,180 300,130 280,90 320,80" />
-      <polyline data-d="4" points="90,180 70,130 95,100" />
-      {/* QB drop + handoff arc */}
-      <path data-d="5" d="M200,200 C180,215 170,235 185,250" />
-      {/* O — offensive markers */}
-      <circle data-d="1" cx="120" cy="180" r="6" />
-      <circle data-d="3" cx="280" cy="180" r="6" />
-      <circle data-d="0" cx="200" cy="200" r="6" />
-      {/* X — defensive markers */}
-      <path className="gs-x" data-d="2" d="M150,140 l8,8 M158,140 l-8,8" />
-      <path className="gs-x" data-d="4" d="M300,150 l8,8 M308,150 l-8,8" />
+      {/* The 50-yard line */}
+      <line x1="200" y1="0" x2="200" y2="300" stroke="var(--chalk)" strokeWidth="2" />
+      {/* Hash marks flanking the line */}
+      {Array.from({ length: 11 }).map((_, i) => (
+        <g key={i} stroke="var(--chalk)" strokeWidth="1.5">
+          <line x1="150" y1={15 + i * 27} x2="162" y2={15 + i * 27} />
+          <line x1="238" y1={15 + i * 27} x2="250" y2={15 + i * 27} />
+        </g>
+      ))}
+      {/* The "50" yard numbers, oriented as on a field */}
+      <text x="118" y="150" fill="var(--chalk)" fontSize="64" fontFamily="var(--font-display)" fontWeight="700" textAnchor="middle" transform="rotate(-90 118 150)">50</text>
+      <text x="282" y="150" fill="var(--chalk)" fontSize="64" fontFamily="var(--font-display)" fontWeight="700" textAnchor="middle" transform="rotate(90 282 150)">50</text>
     </svg>
   );
 }
@@ -378,34 +373,37 @@ export function Landing() {
         <SocialProofRotator />
       </div>
 
-      {/* Hero */}
+      {/* Hero — two-column: crest left, pitch right */}
       <div style={{ position: 'relative', overflow: 'hidden' }}>
-        <ChalkPlay />
+        <FiftyYardLine />
         <HeroParticles />
         <div
           style={{
             position: 'relative',
-            textAlign: 'center',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '48px',
+            flexWrap: 'wrap',
             padding: '72px 24px 60px',
-            maxWidth: '600px',
+            maxWidth: '1080px',
             margin: '0 auto',
           }}
         >
-          {/* Crest emblem (220px) with copper radial glow behind it */}
+          {/* Left — big crest (up to 560px) with copper radial glow behind it */}
           <div
             className="gs-crest-glow"
-            style={{ position: 'relative', width: '220px', maxWidth: '100%', margin: '0 auto 24px' }}
+            style={{ position: 'relative', flex: '1 1 340px', maxWidth: '560px' }}
           >
             <img
               src="/assets/GS_Crest.png"
-              width="220"
               alt=""
               style={{
                 position: 'relative',
                 zIndex: 1,
                 display: 'block',
-                width: '220px',
-                maxWidth: '100%',
+                width: '100%',
+                maxWidth: '560px',
                 margin: '0 auto',
                 mixBlendMode: 'screen',
                 background: 'transparent',
@@ -413,38 +411,40 @@ export function Landing() {
             />
           </div>
 
-          <div style={{ fontSize: '11px', letterSpacing: '4px', color: 'var(--copper)', marginBottom: '16px' }}>
-            NFL · DRAFTKINGS · INTELLIGENCE
-          </div>
-          <div style={{ fontSize: '14px', color: 'var(--silver)', lineHeight: 1.8, maxWidth: '420px', margin: '0 auto 32px' }}>
-            Read the script. Win the slate.
-          </div>
-          <div style={{ display: 'flex', gap: '12px', justifyContent: 'center', flexWrap: 'wrap' }}>
-            <Link to="/register" className="gs-glow-pulse" style={btn('primary')}>Start Free</Link>
-            <Link to="/pricing" style={btn('ghost')}>View Pricing</Link>
-          </div>
+          {/* Right — eyebrow, headline, CTAs, urgency, trust badges */}
+          <div style={{ flex: '1 1 340px', maxWidth: '520px' }}>
+            <div style={{ fontSize: '11px', letterSpacing: '4px', color: 'var(--copper)', marginBottom: '16px' }}>
+              NFL · DRAFTKINGS · INTELLIGENCE
+            </div>
+            <h1 style={{ fontFamily: 'var(--font-display)', fontSize: '52px', lineHeight: 1.05, color: 'var(--chalk)', margin: '0 0 28px' }}>
+              Read the script.<br />Win the slate.
+            </h1>
+            <div style={{ display: 'flex', gap: '12px', flexWrap: 'wrap' }}>
+              <Link to="/register" className="gs-glow-pulse" style={btn('primary')}>Start Free</Link>
+              <Link to="/pricing" style={btn('ghost')}>View Pricing</Link>
+            </div>
 
-          {/* Urgency text near the Start Free button */}
-          <div style={{ fontSize: '11px', color: 'var(--copper-bright)', letterSpacing: '1px', marginTop: '14px' }}>
-            ⚡ Free through NFL Week 1 — lock in before kickoff
-          </div>
+            {/* Urgency text near the Start Free button */}
+            <div style={{ fontSize: '11px', color: 'var(--copper-bright)', letterSpacing: '1px', marginTop: '14px' }}>
+              ⚡ Free through NFL Week 1 — lock in before kickoff
+            </div>
 
-          {/* Trust badges */}
-          <div
-            style={{
-              display: 'flex',
-              justifyContent: 'center',
-              gap: '18px',
-              flexWrap: 'wrap',
-              marginTop: '16px',
-              fontSize: '10px',
-              letterSpacing: '1px',
-              color: 'var(--chalk-dim)',
-            }}
-          >
-            {TRUST_BADGES.map((b) => (
-              <span key={b}>{b}</span>
-            ))}
+            {/* Trust badges */}
+            <div
+              style={{
+                display: 'flex',
+                gap: '18px',
+                flexWrap: 'wrap',
+                marginTop: '16px',
+                fontSize: '10px',
+                letterSpacing: '1px',
+                color: 'var(--chalk-dim)',
+              }}
+            >
+              {TRUST_BADGES.map((b) => (
+                <span key={b}>{b}</span>
+              ))}
+            </div>
           </div>
         </div>
       </div>
